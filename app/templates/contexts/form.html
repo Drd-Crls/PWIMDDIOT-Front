@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ "Editar" if context else "Novo" }} contexto{% endblock %}
+{% block content %}
+<h1>{{ "Editar" if context else "Novo" }} contexto</h1>
+<div class="card form-card">
+  <form method="post">
+    <label>Nome
+      <input name="name" maxlength="100" required value="{{ context.name if context else '' }}">
+    </label>
+    <label>Descrição
+      <textarea name="description" rows="3">{{ context.description if context and context.description else '' }}</textarea>
+    </label>
+    <button class="btn btn-primary" type="submit">Salvar</button>
+    <a class="btn btn-secondary" href="{{ url_for('contexts.list_contexts') }}">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

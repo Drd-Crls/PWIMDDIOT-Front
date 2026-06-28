@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}API Keys{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h1>API Keys</h1>
+  <a class="btn btn-primary" href="{{ url_for('api_keys.create_api_key') }}">+ Nova</a>
+</div>
+
+<table>
+  <thead>
+    <tr><th>ID</th><th>Permissões</th><th>Criada em</th><th>Status</th><th>Ações</th></tr>
+  </thead>
+  <tbody>
+    {% for k in api_keys %}
+    <tr>
+      <td class="muted">{{ k.id }}</td>
+      <td>
+        {% for resource, actions in k.permissions.items() %}
+          <span class="badge">{{ resource }}: {{ actions | join(', ') }}</span>
+        {% else %}
+          <span class="muted">—</span>
+        {% endfor %}
+      </td>
+      <td class="muted">{{ k.created_at[:10] }}</td>
+      <td>
+        {% if k.revoked_at %}
+          <span class="badge badge-danger">Revogada</span>
+        {% else %}
+          <span class="badge badge-success">Ativa</span>
+        {% endif %}
+      </td>
+      <td class="actions">
+        {% if not k.revoked_at %}
+        <form method="post" action="{{ url_for('api_keys.rotate_api_key', api_key_id=k.id) }}"
+              onsubmit="return confirm('Rotacionar esta API Key? A chave atual será revogada.');">
+          <button class="btn btn-secondary" type="submit">Rotacionar</button>
+        </form>
+        <form method="post" action="{{ url_for('api_keys.revoke_api_key', api_key_id=k.id) }}"
+              onsubmit="return confirm('Revogar esta API Key?');">
+          <button class="btn btn-danger" type="submit">Revogar</button>
+        </form>
+        {% else %}
+          <span class="muted">—</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">Nenhuma API Key encontrada.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Nova API Key{% endblock %}
+{% block content %}
+<h1>Nova API Key</h1>
+<div class="card form-card">
+  <form method="post">
+    <p class="muted">Selecione as permissões que esta chave terá sobre cada recurso.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Recurso</th>
+          {% for action in actions %}<th>{{ action }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for resource in resources %}
+        <tr>
+          <td>{{ resource }}</td>
+          {% for action in actions %}
+          <td>
+            <input type="checkbox" name="perm_{{ resource }}" value="{{ action }}"
+                   {% if action in selected.get(resource, []) %}checked{% endif %}>
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <button class="btn btn-primary" type="submit">Criar</button>
+    <a class="btn btn-secondary" href="{{ url_for('api_keys.list_api_keys') }}">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

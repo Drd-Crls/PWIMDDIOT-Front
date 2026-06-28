@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ "Editar" if device else "Novo" }} device{% endblock %}
+{% block content %}
+<h1>{{ "Editar" if device else "Novo" }} device</h1>
+<div class="card form-card">
+  <form method="post">
+    <label>Nome
+      <input name="name" maxlength="128" required value="{{ device.name if device else '' }}">
+    </label>
+    <label>Modelo
+      <input name="model" maxlength="128" required value="{{ device.model if device else '' }}">
+    </label>
+    <label>Localização
+      <input name="location" maxlength="256" value="{{ device.location if device and device.location else '' }}">
+    </label>
+    <label>Status
+      <select name="status" required>
+        {% for s in statuses %}
+          <option value="{{ s }}" {{ 'selected' if device and device.status == s }}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    {% if not device %}
+    <label>Contexto
+      <select name="context_id" required>
+        <option value="">Selecione...</option>
+        {% for c in contexts %}
+          <option value="{{ c.id }}">{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    {% else %}
+    <p class="muted">Contexto e criador não podem ser alterados após a criação.</p>
+    {% endif %}
+
+    <button class="btn btn-primary" type="submit">Salvar</button>
+    <a class="btn btn-secondary" href="{{ url_for('devices.list_devices') }}">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

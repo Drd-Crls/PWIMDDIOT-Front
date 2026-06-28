@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Devices{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h1>Devices</h1>
+  <a class="btn btn-primary" href="{{ url_for('devices.create_device') }}">+ Novo</a>
+</div>
+
+<form class="filters" method="get">
+  <label>Nome
+    <input name="name" value="{{ filters.get('name', '') }}">
+  </label>
+  <label>Modelo
+    <input name="model" value="{{ filters.get('model', '') }}">
+  </label>
+  <label>Status
+    <select name="status">
+      <option value="">Todos</option>
+      {% for s in statuses %}
+        <option value="{{ s }}" {{ 'selected' if filters.get('status') == s }}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button class="btn btn-secondary" type="submit">Filtrar</button>
+</form>
+
+<table>
+  <thead>
+    <tr><th>Nome</th><th>Modelo</th><th>Status</th><th>Localização</th><th>Ações</th></tr>
+  </thead>
+  <tbody>
+    {% for d in data["items"] %}
+    <tr>
+      <td>{{ d.name }}</td>
+      <td class="muted">{{ d.model }}</td>
+      <td><span class="badge">{{ d.status }}</span></td>
+      <td class="muted">{{ d.location or "—" }}</td>
+      <td class="actions">
+        <a class="btn btn-secondary" href="{{ url_for('devices.edit_device', device_id=d.id) }}">Editar</a>
+        <form method="post" action="{{ url_for('devices.delete_device', device_id=d.id) }}"
+              onsubmit="return confirm('Remover este device?');">
+          <button class="btn btn-danger" type="submit">Excluir</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">Nenhum device encontrado.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% include "_pagination.html" %}
+{% endblock %}

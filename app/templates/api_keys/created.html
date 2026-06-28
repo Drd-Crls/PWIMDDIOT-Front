@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}API Key criada{% endblock %}
+{% block content %}
+<h1>API Key criada</h1>
+<div class="card form-card">
+  <p class="muted">
+    Guarde esta chave em local seguro. Por motivos de segurança, ela
+    <strong>não será exibida novamente</strong>.
+  </p>
+  <label>Chave
+    <input type="text" value="{{ api_key.api_key }}" readonly onclick="this.select()">
+  </label>
+  <p class="muted">
+    Permissões:
+    {% for resource, actions in api_key.permissions.items() %}
+      <span class="badge">{{ resource }}: {{ actions | join(', ') }}</span>
+    {% else %}
+      —
+    {% endfor %}
+  </p>
+  <a class="btn btn-primary" href="{{ url_for('api_keys.list_api_keys') }}">Concluir</a>
+</div>
+{% endblock %}

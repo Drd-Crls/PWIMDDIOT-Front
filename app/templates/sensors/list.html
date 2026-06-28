@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Sensores{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h1>Sensores</h1>
+  <a class="btn btn-primary" href="{{ url_for('sensors.create_sensor') }}">+ Novo</a>
+</div>
+
+<form class="filters" method="get">
+  <label>Nome
+    <input name="name" value="{{ filters.get('name', '') }}">
+  </label>
+  <label>Tipo
+    <input name="type" value="{{ filters.get('type', '') }}">
+  </label>
+  <label>Unidade
+    <input name="unit" value="{{ filters.get('unit', '') }}">
+  </label>
+  <button class="btn btn-secondary" type="submit">Filtrar</button>
+</form>
+
+<table>
+  <thead>
+    <tr><th>Nome</th><th>Tipo</th><th>Unidade</th><th>Faixa</th><th>Ações</th></tr>
+  </thead>
+  <tbody>
+    {% for s in data["items"] %}
+    <tr>
+      <td>{{ s.name }}</td>
+      <td class="muted">{{ s.type }}</td>
+      <td class="muted">{{ s.unit or "—" }}</td>
+      <td class="muted">
+        {% if s.min_value is not none or s.max_value is not none %}
+          {{ s.min_value if s.min_value is not none else "?" }} – {{ s.max_value if s.max_value is not none else "?" }}
+        {% else %}—{% endif %}
+      </td>
+      <td class="actions">
+        <a class="btn btn-secondary" href="{{ url_for('sensors.edit_sensor', sensor_id=s.id) }}">Editar</a>
+        <form method="post" action="{{ url_for('sensors.delete_sensor', sensor_id=s.id) }}"
+              onsubmit="return confirm('Remover este sensor?');">
+          <button class="btn btn-danger" type="submit">Excluir</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">Nenhum sensor encontrado.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% include "_pagination.html" %}
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ "Editar" if sensor else "Novo" }} sensor{% endblock %}
+{% block content %}
+<h1>{{ "Editar" if sensor else "Novo" }} sensor</h1>
+<div class="card form-card">
+  <form method="post">
+    <label>Nome
+      <input name="name" maxlength="128" required value="{{ sensor.name if sensor else '' }}">
+    </label>
+    <label>Tipo
+      <input name="type" maxlength="128" required value="{{ sensor.type if sensor else '' }}"
+             placeholder="ex.: temperatura, umidade">
+    </label>
+    <label>Unidade
+      <input name="unit" maxlength="64" value="{{ sensor.unit if sensor and sensor.unit else '' }}"
+             placeholder="ex.: °C, %">
+    </label>
+    <label>Valor mínimo
+      <input name="min_value" type="number" step="any"
+             value="{{ sensor.min_value if sensor and sensor.min_value is not none else '' }}">
+    </label>
+    <label>Valor máximo
+      <input name="max_value" type="number" step="any"
+             value="{{ sensor.max_value if sensor and sensor.max_value is not none else '' }}">
+    </label>
+    <label>Device
+      <select name="device_id" required>
+        <option value="">Selecione...</option>
+        {% for d in devices %}
+          <option value="{{ d.id }}" {{ 'selected' if sensor and sensor.device_id == d.id }}>{{ d.name }} ({{ d.model }})</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <button class="btn btn-primary" type="submit">Salvar</button>
+    <a class="btn btn-secondary" href="{{ url_for('sensors.list_sensors') }}">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

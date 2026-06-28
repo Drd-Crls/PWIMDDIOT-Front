@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<div class="stats">
+  <a class="card stat" href="{{ url_for('contexts.list_contexts') }}">
+    <span class="stat-value">{{ stats.contexts }}</span>
+    <span class="stat-label">Contextos</span>
+  </a>
+  <a class="card stat" href="{{ url_for('devices.list_devices') }}">
+    <span class="stat-value">{{ stats.devices }}</span>
+    <span class="stat-label">Devices</span>
+  </a>
+  <a class="card stat" href="{{ url_for('sensors.list_sensors') }}">
+    <span class="stat-value">{{ stats.sensors }}</span>
+    <span class="stat-label">Sensores</span>
+  </a>
+</div>
+{% endblock %}

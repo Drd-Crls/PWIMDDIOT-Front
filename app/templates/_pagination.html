@@ -1,0 +1,23 @@
+{# Paginacao reutilizavel. Espera `data` (items/total/page/limit) no contexto. #}
+{% set page = data.page %}
+{% set limit = data.limit %}
+{% set total = data.total %}
+{% set has_prev = page > 1 %}
+{% set has_next = (page * limit) < total %}
+
+{# preserva os filtros atuais ao trocar de pagina #}
+{% set base_args = request.args.to_dict() %}
+
+<div class="pagination">
+  {% if has_prev %}
+    {% set _ = base_args.update({'page': page - 1}) %}
+    <a class="btn btn-secondary" href="{{ url_for(request.endpoint, **base_args) }}">« Anterior</a>
+  {% endif %}
+
+  <span class="muted">Página {{ page }} · {{ total }} no total</span>
+
+  {% if has_next %}
+    {% set _ = base_args.update({'page': page + 1}) %}
+    <a class="btn btn-secondary" href="{{ url_for(request.endpoint, **base_args) }}">Próxima »</a>
+  {% endif %}
+</div>
