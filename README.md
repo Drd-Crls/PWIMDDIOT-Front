@@ -34,6 +34,46 @@ Browser  <->  Flask (Jinja SSR)  <->  FastAPI (http://localhost:8000)
 
 5. Acesse `http://localhost:5000` e faca login.
 
+## Painel de monitoramento (`/monitor`)
+
+Dashboard de series temporais de ingests, em **HTML + CSS + JavaScript puro
+(ES modules)** — sem React/Vue/Vite, sem build, sem biblioteca de grafico. O
+grafico e SVG desenhado a mao. As metricas numericas sao **auto-detectadas** a
+partir de `ingest.metadata` (qualquer chave `typeof === "number"` e finita);
+nenhum nome de metrica e hardcoded.
+
+Fluxo (mantem o padrao BFF do projeto — o browser nunca chama a API direto):
+
+```
+Browser (ES modules)  ->  /monitor/api/*  (proxy Flask, mesma origem)  ->  FastAPI
+```
+
+O `api.js` faz `fetch` no proxy same-origin; o cookie de sessao autentica e o
+token JWT continua so no servidor. Nao ha fallback mock: se a requisicao falhar,
+o painel mostra a mensagem de erro (em vez de esconder o problema com dados
+falsos).
+
+### Duas formas de rodar
+
+1. **Backend real** — aponte `API_BASE_URL` para a API e acesse `/monitor`.
+2. **Stub local** (sem o backend real): `pip install -r requirements-stub.txt`,
+   depois `uvicorn stub_api:app --port 8000`, e `API_BASE_URL=http://localhost:8000`.
+   O proxy Flask repassa para o stub no servidor (nem CORS e necessario).
+
+### Estrutura do painel
+
+```
+app/templates/dashboard/monitor.html   # template Jinja (bloco content + scripts)
+app/static/css/dashboard.css            # estilos, escopados sob .iot-dashboard
+app/static/js/
+  main.js          # entrada: init, eventos, pipeline de render
+  state.js         # estado unico + logica de selecao/intervalo
+  api.js           # cliente fetch (proxy same-origin)
+  ui/  sidebar.js  rangeFilter.js  metricChips.js  lineChart.js  legend.js
+  lib/ metrics.js (deteccao/nice-scale/formatters)  colors.js  dom.js
+stub_api.py                             # stub FastAPI opcional (dev)
+```
+
 ## Observacoes sobre a API atual
 
 - **Cadastro de usuario (`POST /users`) exige estar logado** (a rota nao e publica

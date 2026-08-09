@@ -1,0 +1,4 @@
+# Dependencias APENAS do stub de desenvolvimento (stub_api.py).
+# Nao sao necessarias para rodar o front Flask.
+fastapi>=0.110
+uvicorn[standard]>=0.29

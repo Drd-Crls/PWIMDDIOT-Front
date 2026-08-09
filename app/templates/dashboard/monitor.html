@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Monitor{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+{# Raiz do painel; todo o conteudo e renderizado pelos modulos ES em /static/js.
+   Comeca com .is-loading para a barra aparecer ja no primeiro paint (antes do JS
+   rodar); o main.js remove a classe quando os requests terminam. #}
+<div class="iot-dashboard is-loading">
+  <div class="iot-loading-bar" role="progressbar" aria-label="Carregando"></div>
+  <aside class="iot-sidebar" id="iotSidebar"></aside>
+  <div class="iot-main">
+    <div class="iot-header" id="iotHeader"></div>
+    <div id="iotRange"></div>
+    <div id="iotMetrics"></div>
+    <div id="iotChart"></div>
+    <div id="iotLegend"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{# Injeta a base do proxy same-origin (BFF). tojson garante um literal JS valido
+   e escapado, evitando colisao com os delimitadores Jinja. O token JWT NAO vai
+   para o JS: o fetch same-origin ja carrega o cookie de sessao do Flask. #}
+<script>
+  window.__API_BASE__ = {{ api_base | tojson }};
+</script>
+<script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}
