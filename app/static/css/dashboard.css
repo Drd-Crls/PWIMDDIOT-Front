@@ -1,13 +1,19 @@
 /* dashboard.css
    Estilos do painel de monitoramento IoT. TUDO escopado sob `.iot-dashboard`
-   (tokens em custom properties locais) para nao vazar sobre o resto do app
-   (que tem tema escuro proprio em style.css). Design 100% custom, sem framework.
+   (tokens em custom properties locais) para nao vazar sobre o resto do app.
+   Design 100% custom, sem framework.
+
+   Os tokens `--iot-*` sao um conjunto proprio, separado dos tokens globais do
+   style.css: o painel tem densidade e hierarquia de superficie diferentes do
+   resto das telas. Os dois conjuntos respondem ao MESMO atributo data-theme no
+   <html>, entao trocar o tema troca os dois de uma vez.
 */
 
 .iot-dashboard {
-  /* Tokens */
+  /* Tokens — tema claro */
   --iot-page: #eef3fb;
   --iot-card: #ffffff;
+  --iot-sidebar-bg: #ffffff;
   --iot-border: #e0e7f4;
   --iot-border-2: #dbe3f0;
   --iot-ink: #1f2b3d;
@@ -15,12 +21,29 @@
   --iot-muted: #8493ad;
   --iot-muted-2: #9aa7bf;
   --iot-accent: oklch(0.5 0.14 255);
+  --iot-accent-hover: oklch(0.42 0.15 255);
   --iot-danger: oklch(0.55 0.18 25);
   --iot-active-bg: oklch(0.96 0.02 255);
   --iot-chip-ink: #42506b;
   --iot-grid: #dce4f2;
   --iot-axis: #2f3b52;
+  --iot-hover: #f4f7fd;
+  --iot-control-bg: #ffffff;
+  --iot-control-border: #c6d0e2;
+  --iot-switch-off: #d5deee;
+  --iot-knob: #ffffff;
+  --iot-knob-shadow: 0 1px 2px rgba(31, 43, 61, 0.25);
+  --iot-on-accent: #ffffff;
+  --iot-track: oklch(0.92 0.03 255);
+  /* Miolo das bolinhas do grafico: acompanha o fundo do card. */
+  --iot-marker: #ffffff;
+  /* Bolinha de status INACTIVE (ver lib/colors.js). */
+  --iot-status-inactive: #b7c0d0;
   --iot-tooltip-bg: #1f2b3d;
+  --iot-tooltip-ink: #ffffff;
+  --iot-tooltip-ink-2: #dbe3f0;
+  --iot-tooltip-time: #aab6cc;
+  --iot-tooltip-shadow: 0 6px 20px rgba(31, 43, 61, 0.28);
   --iot-radius-card: 14px;
   --iot-radius-ctrl: 9px;
   --iot-shadow: 0 1px 2px rgba(31, 43, 61, 0.03);
@@ -29,9 +52,10 @@
 
   display: flex;
   position: relative;
-  min-height: calc(100vh - 140px);
-  border: 1px solid var(--iot-border);
-  border-radius: var(--iot-radius-card);
+  /* Ocupa o que sobrar da viewport (ver bloco "tela cheia" abaixo). Sem borda
+     nem raio: o painel encosta nas bordas da janela. */
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: hidden;
   background: var(--iot-page);
   color: var(--iot-ink);
@@ -40,9 +64,81 @@
   line-height: 1.35;
 }
 
-/* Esta pagina precisa de mais largura que o .container padrao (max 1000px). */
-.container:has(.iot-dashboard) {
-  max-width: 1400px;
+/* Tema escuro: so os tokens mudam, nenhuma regra abaixo precisa saber do tema.
+   O accent fica mais claro que no tema claro (precisa contrastar com o fundo
+   escuro), por isso --iot-on-accent vira tinta escura. */
+[data-theme="dark"] .iot-dashboard {
+  --iot-page: #0f172a;
+  --iot-card: #1e293b;
+  --iot-sidebar-bg: #1a2537;
+  --iot-border: #334155;
+  --iot-border-2: #3c4b63;
+  --iot-ink: #e2e8f0;
+  --iot-secondary: #a8b6cc;
+  --iot-muted: #8797b1;
+  --iot-muted-2: #76859d;
+  --iot-accent: oklch(0.72 0.14 255);
+  --iot-accent-hover: oklch(0.8 0.13 255);
+  --iot-danger: oklch(0.7 0.17 25);
+  --iot-active-bg: oklch(0.32 0.06 255);
+  --iot-chip-ink: #cbd5e1;
+  --iot-grid: #2d3b52;
+  --iot-axis: #7f8fa8;
+  --iot-hover: #243349;
+  --iot-control-bg: #243349;
+  --iot-control-border: #3c4b63;
+  --iot-switch-off: #3c4b63;
+  --iot-knob: #e2e8f0;
+  --iot-knob-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --iot-on-accent: #0f172a;
+  --iot-track: #2d3b52;
+  --iot-marker: #1e293b;
+  --iot-status-inactive: #4a5a75;
+  --iot-tooltip-bg: #33425c;
+  --iot-tooltip-ink: #f1f5f9;
+  --iot-tooltip-ink-2: #cbd5e1;
+  --iot-tooltip-time: #93a3bd;
+  --iot-tooltip-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --iot-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* ---- Tela cheia -----------------------------------------------------------
+   O resto do app vive dentro de `.container` (max-width 1000px, centralizado,
+   com margem). O monitor nao: ele ocupa a viewport inteira abaixo da navbar.
+   Em vez de descontar a altura da navbar num calc() magico, a cadeia
+   body > .container > .iot-dashboard vira flex column e o painel pega o resto
+   com flex: 1 — assim mudar a altura da navbar nao quebra nada.
+   Tudo escopado por :has(.iot-dashboard) para valer so nesta tela. */
+
+body:has(.iot-dashboard) {
+  min-height: 100vh;
+  min-height: 100dvh; /* mobile: desconta a barra de endereco */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sem isto a navbar (flex-shrink: 1 por padrao) poderia ser espremida quando o
+   conteudo aperta. */
+body:has(.iot-dashboard) .navbar {
+  flex: none;
+}
+
+body:has(.iot-dashboard) .container {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* deixa o filho encolher em vez de estourar a viewport */
+}
+
+/* O container perdeu o padding, entao os flashes precisam do proprio (o
+   margin-bottom do style.css sai junto, o padding de baixo o substitui). */
+body:has(.iot-dashboard) .flashes {
+  margin: 0;
+  padding: 1rem 1.5rem;
 }
 
 .iot-dashboard *,
@@ -56,7 +152,7 @@
   text-decoration: none;
 }
 .iot-dashboard a:hover {
-  color: oklch(0.42 0.15 255);
+  color: var(--iot-accent-hover);
   text-decoration: underline;
 }
 
@@ -65,7 +161,7 @@
 .iot-sidebar {
   width: 256px;
   flex: 0 0 256px;
-  background: #fff;
+  background: var(--iot-sidebar-bg);
   border-right: 1px solid var(--iot-border);
   padding: 26px 16px 32px;
   display: flex;
@@ -120,7 +216,7 @@
   color: var(--iot-ink);
 }
 .iot-device-row:hover {
-  background: #f4f7fd;
+  background: var(--iot-hover);
 }
 .iot-device-row.is-active {
   background: var(--iot-active-bg);
@@ -165,21 +261,21 @@
   cursor: pointer;
 }
 .iot-sensor-row:hover {
-  background: #f4f7fd;
+  background: var(--iot-hover);
 }
 .iot-checkbox {
   width: 16px;
   height: 16px;
   flex: 0 0 16px;
   border-radius: 5px;
-  border: 1.5px solid #c6d0e2;
-  background: #fff;
+  border: 1.5px solid var(--iot-control-border);
+  background: var(--iot-control-bg);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
   line-height: 1;
-  color: #fff;
+  color: var(--iot-on-accent);
 }
 .iot-checkbox.is-checked {
   background: var(--iot-accent);
@@ -218,6 +314,10 @@
   flex-direction: column;
   gap: 22px;
   background: var(--iot-page);
+  /* O painel esta preso a altura da viewport e corta o excedente; sem isto o
+     conteudo mais alto que a tela sumiria em vez de rolar. A sidebar ja tem o
+     seu proprio overflow, entao as duas colunas rolam de forma independente. */
+  overflow-y: auto;
 }
 
 .iot-header {
@@ -283,7 +383,7 @@
   padding: 6px 9px;
   border-radius: 8px;
   border: 1px solid var(--iot-border-2);
-  background: #fff;
+  background: var(--iot-control-bg);
   color: var(--iot-ink);
   font-family: var(--iot-font);
   font-size: 13px;
@@ -303,7 +403,7 @@
   padding: 6px 12px;
   border-radius: 8px;
   border: 1px solid var(--iot-border-2);
-  background: #fff;
+  background: var(--iot-control-bg);
   color: var(--iot-chip-ink);
   font-family: inherit;
   font-size: 12.5px;
@@ -315,7 +415,7 @@
 .iot-preset.is-active {
   background: var(--iot-accent);
   border-color: var(--iot-accent);
-  color: #fff;
+  color: var(--iot-on-accent);
 }
 .iot-range-hint {
   margin-left: auto;
@@ -336,7 +436,7 @@
   padding: 7px 13px;
   border-radius: var(--iot-radius-ctrl);
   border: 1px solid var(--iot-border-2);
-  background: #fff;
+  background: var(--iot-control-bg);
   color: var(--iot-chip-ink);
   font-family: inherit;
   font-size: 12.5px;
@@ -354,7 +454,7 @@
 .iot-chip-all.is-active {
   background: var(--iot-accent);
   border-color: var(--iot-accent);
-  color: #fff;
+  color: var(--iot-on-accent);
 }
 .iot-normalize {
   margin-left: auto;
@@ -364,7 +464,7 @@
   padding: 6px 12px 6px 8px;
   border-radius: var(--iot-radius-ctrl);
   border: 1px solid var(--iot-border-2);
-  background: #fff;
+  background: var(--iot-control-bg);
   color: var(--iot-chip-ink);
   font-family: inherit;
   font-size: 12.5px;
@@ -374,7 +474,7 @@
   width: 34px;
   height: 18px;
   border-radius: 999px;
-  background: #d5deee;
+  background: var(--iot-switch-off);
   position: relative;
   transition: background 0.15s ease;
   flex: 0 0 34px;
@@ -386,8 +486,8 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(31, 43, 61, 0.25);
+  background: var(--iot-knob);
+  box-shadow: var(--iot-knob-shadow);
   transition: left 0.15s ease;
 }
 .iot-normalize.is-active .iot-switch {
@@ -436,6 +536,14 @@
   stroke-linejoin: round;
   stroke-linecap: round;
 }
+/* Bolinhas do grafico: o miolo/contorno claro tem que virar escuro no tema
+   escuro, senao viram pontos brancos sobre o card. */
+.iot-dot-marker {
+  fill: var(--iot-marker);
+}
+.iot-hover-dot {
+  stroke: var(--iot-marker);
+}
 .iot-guide {
   stroke: var(--iot-muted);
   stroke-width: 1;
@@ -479,18 +587,18 @@
   pointer-events: none;
   background: var(--iot-tooltip-bg);
   opacity: 0.96;
-  color: #fff;
+  color: var(--iot-tooltip-ink);
   border-radius: 8px;
   padding: 9px 11px;
   font-size: 12px;
   min-width: 130px;
-  box-shadow: 0 6px 20px rgba(31, 43, 61, 0.28);
+  box-shadow: var(--iot-tooltip-shadow);
   z-index: 5;
 }
 .iot-tt-time {
   font-family: var(--iot-mono);
   font-size: 11px;
-  color: #aab6cc;
+  color: var(--iot-tooltip-time);
   margin-bottom: 6px;
 }
 .iot-tt-row {
@@ -507,7 +615,7 @@
 }
 .iot-tt-key {
   flex: 1;
-  color: #dbe3f0;
+  color: var(--iot-tooltip-ink-2);
 }
 .iot-tt-val {
   font-family: var(--iot-mono);
@@ -553,7 +661,7 @@
   right: 0;
   height: 3px;
   overflow: hidden;
-  background: oklch(0.92 0.03 255);
+  background: var(--iot-track);
   display: none;
   z-index: 10;
 }
@@ -593,17 +701,28 @@
 }
 
 @media (max-width: 860px) {
+  /* Empilhado, travar na altura da viewport daria uma sidebar comendo meia tela
+     e um grafico espremido em duas areas de scroll. Volta pro scroll normal do
+     documento: a pagina cresce e o usuario rola tudo junto. */
+  body:has(.iot-dashboard),
+  body:has(.iot-dashboard) .container {
+    display: block;
+    min-height: 0;
+  }
   .iot-dashboard {
     flex-direction: column;
     min-height: 0;
+    overflow: visible;
   }
   .iot-sidebar {
     width: 100%;
     flex: none;
     border-right: none;
     border-bottom: 1px solid var(--iot-border);
+    overflow-y: visible;
   }
   .iot-main {
     padding: 22px 18px 40px;
+    overflow-y: visible;
   }
 }

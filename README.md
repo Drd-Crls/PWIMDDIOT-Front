@@ -81,7 +81,11 @@ stub_api.py                             # stub FastAPI opcional (dev)
 - **`created_by` do device** e enviado a partir do usuario logado (`/auth/me`).
   Quando o backend passar a derivar isso do token, basta remover esse campo do form.
 - **Token expira em ~30 min e nao ha refresh**: ao receber 401, o front limpa a
-  sessao e manda para o login automaticamente.
+  sessao e manda para o login automaticamente. Como uma aba parada nao faz
+  request nenhum, o `session.js` verifica o token no `/auth/me` a cada 1 minuto
+  e redireciona para o login assim que ele deixa de valer (so no 401 — API fora
+  do ar ou queda de rede nao derrubam a sessao). O polling pausa enquanto a aba
+  esta em segundo plano e roda na hora quando ela volta ao foco.
 
 ## Estrutura
 
@@ -94,5 +98,6 @@ app/
   blueprints/        # auth, dashboard, contexts, devices, sensors, users
   templates/         # base.html + telas Jinja
   static/style.css
+  static/js/session.js  # vigia de sessao (polling do /auth/me, em toda pagina)
 run.py
 ```

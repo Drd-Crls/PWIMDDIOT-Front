@@ -80,6 +80,28 @@ function renderAll() {
   renderViz();
 }
 
+// O grafico e desenhado com a largura medida do container (o viewBox casa 1:1
+// com pixels), entao redimensionar a janela exige redesenhar. Reage so a
+// mudanca de LARGURA: o proprio redesenho altera a ALTURA do container, o que
+// realimentaria o observer num laco.
+function observeChartWidth() {
+  if (typeof ResizeObserver === "undefined") return;
+  let lastW = Math.round(els.chart.clientWidth);
+  let raf = 0;
+  const ro = new ResizeObserver((entries) => {
+    const w = Math.round(entries[0].contentRect.width);
+    if (w === lastW) return;
+    lastW = w;
+    cancelAnimationFrame(raf);
+    // Agrupa rajadas de resize num unico redesenho por frame.
+    raf = requestAnimationFrame(() => {
+      if (state.error) return; // o card de erro nao depende da largura
+      renderLineChart(els.chart, state);
+    });
+  });
+  ro.observe(els.chart);
+}
+
 function setLoading(on) {
   state.loading = on;
   els.root.classList.toggle("is-loading", on);
@@ -232,6 +254,9 @@ async function init() {
   } finally {
     setLoading(false);
   }
+
+  // Depois do primeiro render, para partir da largura ja assentada.
+  observeChartWidth();
 }
 
 if (document.readyState === "loading") {

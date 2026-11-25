@@ -38,10 +38,9 @@ export function renderSidebar(root, state, { onSelectDevice, onToggleSensor }) {
 
   root.innerHTML = `
     <div class="iot-sidebar-head">
-      <div class="iot-eyebrow">IOT MONITORING</div>
-      <div class="iot-fleet">Fleet</div>
+      <div class="iot-eyebrow">MONITORAMENTO IOT</div>
     </div>
-    <div class="iot-section-label">DEVICES</div>
+    <div class="iot-section-label">DISPOSITIVOS</div>
     <div class="iot-device-list">${devicesHtml || '<div class="iot-empty-mini">Sem devices</div>'}</div>
   `;
 

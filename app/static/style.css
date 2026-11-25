@@ -1,14 +1,66 @@
+/* style.css
+   Tokens de cor em custom properties. `:root` carrega o tema CLARO; o bloco
+   `[data-theme="dark"]` sobrescreve com o tema ESCURO. O atributo data-theme
+   fica no <html> e ja vem escrito no markup (base.html) como "dark", que e o
+   padrao do app quando nada foi salvo no localStorage.
+*/
+
 :root {
+  color-scheme: light;
+
+  --bg: #eef2f7;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --text: #1e293b;
+  --muted: #64748b;
+  --border: #dfe6ef;
+
+  --primary: #2563eb;
+  --danger: #b91c1c;
+  --success: #15803d;
+  --warning: #b45309;
+
+  /* Texto sobre um fundo preenchido com cor de destaque. */
+  --on-accent: #ffffff;
+
+  /* Fundos suaves dos flashes. */
+  --primary-soft: #e8effd;
+  --danger-soft: #fdeaea;
+  --success-soft: #e7f6ec;
+  --warning-soft: #fdf1e0;
+
+  --badge-success: #15803d;
+  --badge-danger: #b91c1c;
+
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
   --bg: #0f172a;
   --surface: #1e293b;
   --surface-2: #334155;
   --text: #e2e8f0;
   --muted: #94a3b8;
+  --border: #334155;
+
   --primary: #3b82f6;
   --danger: #ef4444;
   --success: #22c55e;
   --warning: #f59e0b;
-  --border: #334155;
+
+  --on-accent: #ffffff;
+
+  --primary-soft: rgba(59, 130, 246, 0.15);
+  --danger-soft: rgba(239, 68, 68, 0.15);
+  --success-soft: rgba(34, 197, 94, 0.15);
+  --warning-soft: rgba(245, 158, 11, 0.15);
+
+  --badge-success: #16a34a;
+  --badge-danger: #dc2626;
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 * { box-sizing: border-box; }
@@ -38,6 +90,38 @@ a:hover { text-decoration: underline; }
 .nav-links a:hover { color: var(--text); }
 .nav-user { margin-left: auto; display: flex; align-items: center; gap: 1rem; color: var(--muted); font-size: 0.9rem; }
 
+/* Alternador de tema */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 0;
+}
+.theme-toggle:hover { color: var(--text); border-color: var(--primary); }
+.theme-toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* O icone mostra o DESTINO do clique: lua no tema claro, sol no escuro. */
+.theme-icon-sun { display: none; }
+.theme-icon-moon { display: block; }
+[data-theme="dark"] .theme-icon-sun { display: block; }
+[data-theme="dark"] .theme-icon-moon { display: none; }
+
+/* Fora da navbar (ex.: login, que nao renderiza nav) o botao flutua no canto. */
+.theme-toggle-floating {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 20;
+}
+
 .container { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; }
 
 h1 { font-size: 1.5rem; margin-bottom: 1rem; }
@@ -48,6 +132,7 @@ h1 { font-size: 1.5rem; margin-bottom: 1rem; }
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 1.25rem;
+  box-shadow: var(--shadow);
 }
 .login-card { max-width: 360px; margin: 4rem auto; }
 
@@ -79,11 +164,11 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary); b
   border-radius: 6px;
   font-size: 0.9rem;
   cursor: pointer;
-  color: #fff;
+  color: var(--on-accent);
 }
 .btn-primary { background: var(--primary); }
 .btn-danger { background: var(--danger); }
-.btn-secondary { background: var(--surface-2); }
+.btn-secondary { background: var(--surface-2); color: var(--text); }
 .btn:hover { opacity: 0.9; text-decoration: none; }
 .btn-link { color: var(--muted); }
 
@@ -100,8 +185,8 @@ tr:last-child td { border-bottom: none; }
 .actions form { display: inline; }
 
 .badge { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.75rem; background: var(--surface-2); color: var(--text); }
-.badge-success { background: #16a34a; color: #fff; }
-.badge-danger { background: #dc2626; color: #fff; }
+.badge-success { background: var(--badge-success); color: var(--on-accent); }
+.badge-danger { background: var(--badge-danger); color: var(--on-accent); }
 
 /* Pagination */
 .pagination { display: flex; gap: 0.75rem; align-items: center; margin-top: 1rem; color: var(--muted); }
@@ -109,10 +194,10 @@ tr:last-child td { border-bottom: none; }
 /* Flash */
 .flashes { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
 .flash { padding: 0.6rem 0.9rem; border-radius: 6px; font-size: 0.9rem; }
-.flash-success { background: rgba(34,197,94,.15); color: var(--success); border: 1px solid var(--success); }
-.flash-danger  { background: rgba(239,68,68,.15); color: var(--danger); border: 1px solid var(--danger); }
-.flash-warning { background: rgba(245,158,11,.15); color: var(--warning); border: 1px solid var(--warning); }
-.flash-info    { background: rgba(59,130,246,.15); color: var(--primary); border: 1px solid var(--primary); }
+.flash-success { background: var(--success-soft); color: var(--success); border: 1px solid var(--success); }
+.flash-danger  { background: var(--danger-soft);  color: var(--danger);  border: 1px solid var(--danger); }
+.flash-warning { background: var(--warning-soft); color: var(--warning); border: 1px solid var(--warning); }
+.flash-info    { background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary); }
 
 .muted { color: var(--muted); }
 .form-card { max-width: 520px; }

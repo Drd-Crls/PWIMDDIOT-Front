@@ -17,10 +17,13 @@ export function metricColor(key, detectedMetrics) {
   return SERIES_COLORS[idx % SERIES_COLORS.length];
 }
 
-// Cores dos status de device (bolinha na sidebar).
+// Cores dos status de device (bolinha na sidebar). As tres saturadas tem
+// lightness media e funcionam nos dois temas. INACTIVE e a excecao: por ser um
+// cinza dessaturado ele inverteria de sentido no tema escuro (viraria a bolinha
+// MAIS clara da lista), entao sai de um token que muda junto com o tema.
 export const STATUS_COLORS = {
   ACTIVE: "oklch(0.65 0.15 150)",
   MAINTENANCE: "oklch(0.72 0.15 75)",
-  INACTIVE: "#b7c0d0",
+  INACTIVE: "var(--iot-status-inactive)",
   OFFLINE: "oklch(0.62 0.18 25)",
 };
